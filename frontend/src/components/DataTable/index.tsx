@@ -1,4 +1,27 @@
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { SalePage } from "types/sale";
+import { formatLocalDate } from "utils/format";
+import { BASE_URL } from "utils/requests";
+
 const DataTable = () => {
+
+    const [page, setPage] = useState<SalePage>({
+        first: true,
+        last: true,
+        number: 0,
+        totalElements: 0,
+        totalPages: 0
+    });
+
+    useEffect(() => {
+        axios.get(`${BASE_URL}/sales?page=0&size=20&sort=date,desc`)
+            .then(response => {
+                setPage(response.data)
+            });
+    }, [])
+
+
     return (
         <div className="table-responsive">
             <table className="table table-striped table-sm">
@@ -12,27 +35,15 @@ const DataTable = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>22/04/2021</td>
-                        <td>Barry Allen</td>
-                        <td>34</td>
-                        <td>25</td>
-                        <td>15017.00</td>
-                    </tr>
-                    <tr>
-                        <td>10/02/2021</td>
-                        <td>August Androck</td>
-                        <td>23</td>
-                        <td>21</td>
-                        <td>10101.00</td>
-                    </tr>
-                    <tr>
-                        <td>31/03/2021</td>
-                        <td>Willian Docker</td>
-                        <td>74</td>
-                        <td>8</td>
-                        <td>8000.00</td>
-                    </tr>
+                    {page.content?.map(item =>(
+                        <tr key={item.id}>
+                            <td>{formatLocalDate(item.date, "dd/MM/yyyy")}</td>
+                            <td>{item.seller.name}</td>
+                            <td>{item.visited}</td>
+                            <td>{item.deals}</td>
+                            <td>{item.amount.toFixed(2)}</td>
+                        </tr>
+                    ))}
                 </tbody>
             </table>
         </div>
